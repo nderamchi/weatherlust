@@ -8,10 +8,14 @@
 
 import UIKit
 import MapKit
+import Alamofire
+import SwiftyJSON
 
 class ViewController: UIViewController {
 
     @IBOutlet weak var wunderMap: MKMapView!
+    var touchLatLong = String()
+    var geolookupURL = String()
     
     let initialRadius: CLLocationDistance = 1000000
     
@@ -38,6 +42,10 @@ class ViewController: UIViewController {
         
         let touchLatitude = touchCoordinate.latitude
         let touchLongitude = touchCoordinate.longitude
+        touchLatLong = "\(touchLatitude),\(touchLongitude)"
+        geolookupURL = "http://api.wunderground.com/api/2e45071e333b24f3/geolookup/q/\(touchLatLong).json"
+        print(geolookupURL)
+        geoRequest()
         
         let touchAnnotation = MKPointAnnotation()
         touchAnnotation.coordinate = touchCoordinate
@@ -45,6 +53,21 @@ class ViewController: UIViewController {
         wunderMap.addAnnotation(touchAnnotation)
         print("annotation added")
     }
+    
+    func geoRequest() {
+        Alamofire.request(geolookupURL, method: .get).validate().responseJSON { response in
+            switch response.result {
+            case.success(let value):
+                let json = JSON(value)
+                print("\(json)")
+                let avalue = json["location"]["nearby_weather_stations"]["pws"]["station"][0]["city"].string
+                print(avalue as Any)
+            case.failure(let error):
+                print(error)
+            }
+        }
+    }
+    
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
