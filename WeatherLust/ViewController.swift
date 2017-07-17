@@ -7,12 +7,43 @@
 //
 
 import UIKit
+import MapKit
 
 class ViewController: UIViewController {
 
+    @IBOutlet weak var wunderMap: MKMapView!
+    
+    let initialRadius: CLLocationDistance = 1000000
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        let initialLocation = CLLocation(latitude: 36.7783, longitude: -119.4179)
+        centerMapOnLocation(location: initialLocation)
+        
+        let wundergestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(self.wundermapTap(gestureRecognizer:)))
+        self.wunderMap.addGestureRecognizer(wundergestureRecognizer)
+            }
+    
+    func centerMapOnLocation(location: CLLocation) {
+            let coordinateRegion = MKCoordinateRegionMakeWithDistance(location.coordinate, initialRadius * 1.7, initialRadius * 1.7)
+            wunderMap.setRegion(coordinateRegion, animated: true)
+        }
+    
+    func wundermapTap(gestureRecognizer: UIGestureRecognizer) {
+        wunderMap.removeAnnotations(wunderMap.annotations)
+        let touchPoint = gestureRecognizer.location(in: self.wunderMap)
+        let touchCoordinate = wunderMap.convert(touchPoint, toCoordinateFrom: self.wunderMap)
+        
+        let touchLatitude = touchCoordinate.latitude
+        let touchLongitude = touchCoordinate.longitude
+        
+        let touchAnnotation = MKPointAnnotation()
+        touchAnnotation.coordinate = touchCoordinate
+        
+        wunderMap.addAnnotation(touchAnnotation)
+        print("annotation added")
     }
 
     override func didReceiveMemoryWarning() {
