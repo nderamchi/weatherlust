@@ -14,8 +14,8 @@ import SwiftyJSON
 class ViewController: UIViewController {
 
     @IBOutlet weak var wunderMap: MKMapView!
-    var touchLatLong = String()
-    var geolookupURL = String()
+    var stationArray = [WeatherStation]()
+    
     
     let initialRadius: CLLocationDistance = 1000000
     
@@ -37,36 +37,106 @@ class ViewController: UIViewController {
     
     func wundermapTap(gestureRecognizer: UIGestureRecognizer) {
         wunderMap.removeAnnotations(wunderMap.annotations)
+        stationArray.removeAll()
         let touchPoint = gestureRecognizer.location(in: self.wunderMap)
         let touchCoordinate = wunderMap.convert(touchPoint, toCoordinateFrom: self.wunderMap)
         
-        let touchLatitude = touchCoordinate.latitude
-        let touchLongitude = touchCoordinate.longitude
-        touchLatLong = "\(touchLatitude),\(touchLongitude)"
-        geolookupURL = "http://api.wunderground.com/api/2e45071e333b24f3/geolookup/q/\(touchLatLong).json"
-        print(geolookupURL)
-        geoRequest()
+        let touchLatLong = "\(touchCoordinate.latitude),\(touchCoordinate.longitude)"
+        let geolookupURL = "http://api.wunderground.com/api/2e45071e333b24f3/geolookup/q/\(touchLatLong).json"
+        geoRequest(url: geolookupURL)
+        let currentconditionslookupURL = "http://api.wunderground.com/api/2e45071e333b24f3/conditions/q/\(touchLatLong).json"
+        let annotationTitle = conditionsRequest(url: currentconditionslookupURL)
         
         let touchAnnotation = MKPointAnnotation()
         touchAnnotation.coordinate = touchCoordinate
+        touchAnnotation.title = annotationTitle
         
         wunderMap.addAnnotation(touchAnnotation)
-        print("annotation added")
+        //print(touchAnnotation.title)
+        
+        let span = MKCoordinateSpanMake(0.5, 0.5)
+        let zoomRegion = MKCoordinateRegion(center:touchAnnotation.coordinate, span: span)
+        wunderMap.setRegion(zoomRegion, animated: true)
     }
     
-    func geoRequest() {
-        Alamofire.request(geolookupURL, method: .get).validate().responseJSON { response in
+    func conditionsSetter(completionHandler: @escaping (NSDictionary?, Error?) -> ()) {
+        let json = JSON(value)
+        //print("JSON: \(json)")
+        guard let currentTemp = json["current_observation"]["temperature_string"].string else {
+            return
+        }
+        guard let currentCity = json["current_observation"]["observation_location"]["city"].string else {
+            return
+        }
+        guard let currentState = json["current_observation"]["observation_location"]["state"].string else {
+            return
+        }
+        DispatchQueue.main.async {
+            var annotationReading = currentCity + ", " + currentState + " " + currentTemp
+            //print(annotationReading)
+        }
+
+    }
+    
+    func conditionsRequest(url: String, completionHandler: @escaping (NSDictionary?, Error?) -> ()){
+        Alamofire.request(url, method: .get).validate().responseJSON { response in
+            switch response.result {
+            case .success(let value):
+                completionHandler(value as? NSDictionary, nil)
+            case .failure(let error):
+                 completionHandler(nil, error)
+            }
+          
+        }
+
+    }
+    
+    func geoRequest(url: String) {
+        Alamofire.request(url, method: .get).validate().responseJSON { response in
             switch response.result {
             case.success(let value):
                 let json = JSON(value)
-                print("\(json)")
-                let avalue = json["location"]["nearby_weather_stations"]["pws"]["station"][0]["city"].string
-                print(avalue as Any)
+                //print("\(json)")
+                let responseCount = json["location"]["nearby_weather_stations"]["pws"]["station"][0].count
+                print(responseCount)
+                if responseCount != 0 {
+                for station in 0 ..< responseCount {
+                    var addStation = WeatherStation()
+                    addStation.id = json["location"]["nearby_weather_stations"]["pws"]["station"][station]["id"].string
+                    addStation.latitude = json["location"]["nearby_weather_stations"]["pws"]["station"][station]["lat"].double
+                    addStation.longitude = json["location"]["nearby_weather_stations"]["pws"]["station"][station]["lon"].double
+                    addStation.mileDistance = json["location"]["nearby_weather_stations"]["pws"]["station"][station]["distance_mi"].int
+                    addStation.neighborhood = json["location"]["nearby_weather_stations"]["pws"]["station"][station]["neighborhood"].string
+                    addStation.city = json["location"]["nearby_weather_stations"]["pws"]["station"][station]["city"].string
+                    addStation.country = json["location"]["nearby_weather_stations"]["pws"]["station"][station]["country"].string
+                    addStation.state = json["location"]["nearby_weather_stations"]["pws"]["station"][station]["state"].string
+                    
+                    self.stationArray.append(addStation)
+                }
+                DispatchQueue.main.async {
+                     for newstation in 0...4 {
+                        if responseCount >= newstation {
+                        let stationAnnotation = MKPointAnnotation()
+                        guard let stationLat = self.stationArray[newstation].latitude else {
+                            print("latitude missing")
+                            return
+                        }
+                        guard let stationLon = self.stationArray[newstation].longitude else {
+                            print("longitude missing")
+                            return
+                        }
+                        stationAnnotation.coordinate = CLLocationCoordinate2D(latitude: stationLat , longitude: stationLon)
+                        self.wunderMap.addAnnotation(stationAnnotation)
+                    }
+                    }
+                }
+                }
             case.failure(let error):
                 print(error)
             }
         }
     }
+
     
 
     override func didReceiveMemoryWarning() {
