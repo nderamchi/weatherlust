@@ -45,11 +45,9 @@ class ViewController: UIViewController {
         let geolookupURL = "http://api.wunderground.com/api/2e45071e333b24f3/geolookup/q/\(touchLatLong).json"
         geoRequest(url: geolookupURL)
         let currentconditionslookupURL = "http://api.wunderground.com/api/2e45071e333b24f3/conditions/q/\(touchLatLong).json"
-        let annotationTitle = conditionsRequest(url: currentconditionslookupURL)
         
         let touchAnnotation = MKPointAnnotation()
         touchAnnotation.coordinate = touchCoordinate
-        touchAnnotation.title = annotationTitle
         
         wunderMap.addAnnotation(touchAnnotation)
         //print(touchAnnotation.title)
@@ -59,37 +57,6 @@ class ViewController: UIViewController {
         wunderMap.setRegion(zoomRegion, animated: true)
     }
     
-    func conditionsSetter(completionHandler: @escaping (NSDictionary?, Error?) -> ()) {
-        let json = JSON(value)
-        //print("JSON: \(json)")
-        guard let currentTemp = json["current_observation"]["temperature_string"].string else {
-            return
-        }
-        guard let currentCity = json["current_observation"]["observation_location"]["city"].string else {
-            return
-        }
-        guard let currentState = json["current_observation"]["observation_location"]["state"].string else {
-            return
-        }
-        DispatchQueue.main.async {
-            var annotationReading = currentCity + ", " + currentState + " " + currentTemp
-            //print(annotationReading)
-        }
-
-    }
-    
-    func conditionsRequest(url: String, completionHandler: @escaping (NSDictionary?, Error?) -> ()){
-        Alamofire.request(url, method: .get).validate().responseJSON { response in
-            switch response.result {
-            case .success(let value):
-                completionHandler(value as? NSDictionary, nil)
-            case .failure(let error):
-                 completionHandler(nil, error)
-            }
-          
-        }
-
-    }
     
     func geoRequest(url: String) {
         Alamofire.request(url, method: .get).validate().responseJSON { response in
