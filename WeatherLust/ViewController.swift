@@ -14,8 +14,9 @@ import SwiftyJSON
 class ViewController: UIViewController {
 
     @IBOutlet weak var wunderMap: MKMapView!
-    var stationArray = [WeatherStation]()
+    @IBOutlet weak var stationsButton: UIBarButtonItem!
     
+    var stationArray = [WeatherStation]()
     
     let initialRadius: CLLocationDistance = 1000000
     
@@ -44,7 +45,7 @@ class ViewController: UIViewController {
         let touchLatLong = "\(touchCoordinate.latitude),\(touchCoordinate.longitude)"
         let geolookupURL = "http://api.wunderground.com/api/2e45071e333b24f3/geolookup/q/\(touchLatLong).json"
         geoRequest(url: geolookupURL)
-        let currentconditionslookupURL = "http://api.wunderground.com/api/2e45071e333b24f3/conditions/q/\(touchLatLong).json"
+        //let currentconditionslookupURL = "http://api.wunderground.com/api/2e45071e333b24f3/conditions/q/\(touchLatLong).json"
         
         let touchAnnotation = MKPointAnnotation()
         touchAnnotation.coordinate = touchCoordinate
@@ -52,7 +53,7 @@ class ViewController: UIViewController {
         wunderMap.addAnnotation(touchAnnotation)
         //print(touchAnnotation.title)
         
-        let span = MKCoordinateSpanMake(0.5, 0.5)
+        let span = MKCoordinateSpanMake(0.4, 0.4)
         let zoomRegion = MKCoordinateRegion(center:touchAnnotation.coordinate, span: span)
         wunderMap.setRegion(zoomRegion, animated: true)
     }
@@ -64,7 +65,7 @@ class ViewController: UIViewController {
             case.success(let value):
                 let json = JSON(value)
                 //print("\(json)")
-                let responseCount = json["location"]["nearby_weather_stations"]["pws"]["station"][0].count
+                let responseCount = json["location"]["nearby_weather_stations"]["pws"]["station"].count
                 print(responseCount)
                 if responseCount != 0 {
                 for station in 0 ..< responseCount {
@@ -72,15 +73,21 @@ class ViewController: UIViewController {
                     addStation.id = json["location"]["nearby_weather_stations"]["pws"]["station"][station]["id"].string
                     addStation.latitude = json["location"]["nearby_weather_stations"]["pws"]["station"][station]["lat"].double
                     addStation.longitude = json["location"]["nearby_weather_stations"]["pws"]["station"][station]["lon"].double
-                    addStation.mileDistance = json["location"]["nearby_weather_stations"]["pws"]["station"][station]["distance_mi"].int
+                    addStation.kmDistance = json["location"]["nearby_weather_stations"]["pws"]["station"][station]["distance_km"].int
                     addStation.neighborhood = json["location"]["nearby_weather_stations"]["pws"]["station"][station]["neighborhood"].string
                     addStation.city = json["location"]["nearby_weather_stations"]["pws"]["station"][station]["city"].string
                     addStation.country = json["location"]["nearby_weather_stations"]["pws"]["station"][station]["country"].string
                     addStation.state = json["location"]["nearby_weather_stations"]["pws"]["station"][station]["state"].string
                     
-                    self.stationArray.append(addStation)
+                    guard let stationdistance = addStation.kmDistance else {
+                    return
+                    }
+                    if stationdistance <= 40 {
+                        self.stationArray.append(addStation)
+                    }
                 }
                 DispatchQueue.main.async {
+                    print(self.stationArray.count)
                      for newstation in 0...4 {
                         if responseCount >= newstation {
                         let stationAnnotation = MKPointAnnotation()
@@ -104,6 +111,13 @@ class ViewController: UIViewController {
         }
     }
 
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "toAllStations" {
+            let destination = segue.destination as? StationViewController
+            destination?.rawStationArray = stationArray
+        }
+    }
+    
     
 
     override func didReceiveMemoryWarning() {

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		00591DF91F1DD05600EFD554 /* WeatherStation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00591DF81F1DD05600EFD554 /* WeatherStation.swift */; };
+		008EDA8E1F2085BF005945D5 /* StationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 008EDA8D1F2085BF005945D5 /* StationViewController.swift */; };
 		00BBF1F21F1C7D4700C0C4B5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00BBF1F11F1C7D4700C0C4B5 /* AppDelegate.swift */; };
 		00BBF1F41F1C7D4700C0C4B5 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00BBF1F31F1C7D4700C0C4B5 /* ViewController.swift */; };
 		00BBF1F71F1C7D4700C0C4B5 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 00BBF1F51F1C7D4700C0C4B5 /* Main.storyboard */; };
@@ -39,6 +40,7 @@
 
 /* Begin PBXFileReference section */
 		00591DF81F1DD05600EFD554 /* WeatherStation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeatherStation.swift; sourceTree = "<group>"; };
+		008EDA8D1F2085BF005945D5 /* StationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StationViewController.swift; sourceTree = "<group>"; };
 		00BBF1EE1F1C7D4700C0C4B5 /* WeatherLust.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WeatherLust.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		00BBF1F11F1C7D4700C0C4B5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		00BBF1F31F1C7D4700C0C4B5 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -119,6 +121,7 @@
 				00BBF1F11F1C7D4700C0C4B5 /* AppDelegate.swift */,
 				00591DF81F1DD05600EFD554 /* WeatherStation.swift */,
 				00BBF1F31F1C7D4700C0C4B5 /* ViewController.swift */,
+				008EDA8D1F2085BF005945D5 /* StationViewController.swift */,
 				00BBF1F51F1C7D4700C0C4B5 /* Main.storyboard */,
 				00BBF1F81F1C7D4700C0C4B5 /* Assets.xcassets */,
 				00BBF1FA1F1C7D4700C0C4B5 /* LaunchScreen.storyboard */,
@@ -452,6 +455,7 @@
 				00BBF1F41F1C7D4700C0C4B5 /* ViewController.swift in Sources */,
 				00591DF91F1DD05600EFD554 /* WeatherStation.swift in Sources */,
 				00BBF1F21F1C7D4700C0C4B5 /* AppDelegate.swift in Sources */,
+				008EDA8E1F2085BF005945D5 /* StationViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
