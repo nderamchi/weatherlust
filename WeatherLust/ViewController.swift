@@ -47,11 +47,9 @@ class ViewController: UIViewController {
         geoRequest(url: geolookupURL)
         //let currentconditionslookupURL = "http://api.wunderground.com/api/2e45071e333b24f3/conditions/q/\(touchLatLong).json"
         
-        let touchAnnotation = MKPointAnnotation()
         touchAnnotation.coordinate = touchCoordinate
         
         wunderMap.addAnnotation(touchAnnotation)
-        //print(touchAnnotation.title)
         
         let span = MKCoordinateSpanMake(0.4, 0.4)
         let zoomRegion = MKCoordinateRegion(center:touchAnnotation.coordinate, span: span)
