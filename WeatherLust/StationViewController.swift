@@ -24,7 +24,6 @@ class StationViewController: UITableViewController {
         //array setup
         let trimmedStationArray = rawStationArray.prefix(50)
         stationArray = trimmedStationArray.sorted{$0.neighborhood! < $1.neighborhood!}
-        print(stationArray)
         
     }
     

@@ -18,6 +18,7 @@ class ViewController: UIViewController {
     
     var stationArray = [WeatherStation]()
     
+    let touchAnnotation = MKPointAnnotation()
     let initialRadius: CLLocationDistance = 1000000
     
     override func viewDidLoad() {
@@ -45,9 +46,11 @@ class ViewController: UIViewController {
         let touchLatLong = "\(touchCoordinate.latitude),\(touchCoordinate.longitude)"
         let geolookupURL = "http://api.wunderground.com/api/2e45071e333b24f3/geolookup/q/\(touchLatLong).json"
         geoRequest(url: geolookupURL)
-        //let currentconditionslookupURL = "http://api.wunderground.com/api/2e45071e333b24f3/conditions/q/\(touchLatLong).json"
+        let currentconditionslookupURL = "http://api.wunderground.com/api/2e45071e333b24f3/conditions/q/\(touchLatLong).json"
+        conditionsRequest(url: currentconditionslookupURL)
         
         touchAnnotation.coordinate = touchCoordinate
+        touchAnnotation.title = " "
         
         wunderMap.addAnnotation(touchAnnotation)
         
@@ -56,6 +59,31 @@ class ViewController: UIViewController {
         wunderMap.setRegion(zoomRegion, animated: true)
     }
     
+    func conditionsRequest(url: String){
+        Alamofire.request(url, method: .get).validate().responseJSON { response in
+            switch response.result {
+            case .success(let value):
+                let json = JSON(value)
+                //print(json)
+                guard let currentTemp = json["current_observation"]["temp_c"].int else {
+                    return
+                }
+                guard let currentState = json["current_observation"]["display_location"]["full"].string else {
+                    return
+                }
+                DispatchQueue.main.async {
+                    let annotationReading = currentState + " " + "\(currentTemp)" + "ºC"
+                    self.touchAnnotation.title = annotationReading
+                    self.wunderMap.selectAnnotation(self.touchAnnotation, animated: true)
+                }
+
+            case .failure(let error):
+                 print(error)
+            }
+          
+        }
+
+    }
     
     func geoRequest(url: String) {
         Alamofire.request(url, method: .get).validate().responseJSON { response in
@@ -64,7 +92,7 @@ class ViewController: UIViewController {
                 let json = JSON(value)
                 //print("\(json)")
                 let responseCount = json["location"]["nearby_weather_stations"]["pws"]["station"].count
-                print(responseCount)
+                //print(responseCount)
                 if responseCount != 0 {
                 for station in 0 ..< responseCount {
                     var addStation = WeatherStation()
@@ -85,7 +113,7 @@ class ViewController: UIViewController {
                     }
                 }
                 DispatchQueue.main.async {
-                    print(self.stationArray.count)
+                    //print(self.stationArray.count)
                      for newstation in 0...4 {
                         if responseCount >= newstation {
                         let stationAnnotation = MKPointAnnotation()
