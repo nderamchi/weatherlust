@@ -41,6 +41,9 @@ class StationViewController: UITableViewController {
         if let neighborhood = station.neighborhood {
             cell.stationNeighborhood?.text = neighborhood
         }
+        else {
+            cell.stationDistance?.text = "UNKNOWN"
+        }
         if let distance = station.kmDistance {
         cell.stationDistance?.text = String(describing: distance) + "KM"
         }
